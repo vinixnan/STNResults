@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>STN Visualizations</title>
+
+<style>
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    margin:40px;
+}
+
+h1{
+    margin-bottom:20px;
+}
+
+table{
+    border-collapse: collapse;
+}
+
+th, td{
+    border:1px solid #ccc;
+    padding:10px;
+    text-align:center;
+}
+
+th{
+    background:#f2f2f2;
+}
+
+img.thumb{
+    width:130px;
+    cursor:pointer;
+    transition: transform 0.2s;
+}
+
+img.thumb:hover{
+    transform: scale(1.1);
+}
+
+/* modal fullscreen */
+
+#modal{
+    display:none;
+    position:fixed;
+    z-index:1000;
+    left:0;
+    top:0;
+    width:100vw;
+    height:100vh;
+    background:rgba(0,0,0,0.9);
+
+    justify-content:center;
+    align-items:center;
+}
+
+#modal img{
+    max-width:95vw;
+    max-height:95vh;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<h1 id="title"></h1>
+
+<table id="table"></table>
+
+<div id="modal">
+<img id="modalImg">
+</div>
+
+
+<script>
+
+/* -----------------------------
+   read problem from URL
+------------------------------ */
+
+const params = new URLSearchParams(window.location.search);
+const problem = params.get("problem");
+const pro = problem.split("_")[0]
+
+document.getElementById("title").innerText =
+    "STN Visualizations for " + pro;
+
+
+/* -----------------------------
+   configuration
+------------------------------ */
+
+const algorithms = ["NSGAII","AGE2","GDE3","SPEA2"];
+
+const plots = [
+    "kk",
+    "opt",
+    "fr",
+    "dh",
+    "drl"
+];
+
+
+/* -----------------------------
+   build table
+------------------------------ */
+
+const table = document.getElementById("table");
+
+let header = "<tr><th>Plot type</th>";
+
+algorithms.forEach(a => {
+    header += "<th>"+a+"</th>";
+});
+
+header += "</tr>";
+
+table.innerHTML += header;
+
+
+/* -----------------------------
+   populate rows
+------------------------------ */
+
+plots.forEach(plot => {
+
+    let row = "<tr>";
+    row += "<td>"+plot+"</td>";
+
+    algorithms.forEach(alg => {
+
+        const file =
+        `${plot}_${problem}_${alg}-STN_0_stn.pkl_stn_python.svg`;
+
+        const path = "img/" + file;
+
+        row += `
+        <td>
+            <img class="thumb"
+            src="${path}"
+            onclick="openModal('${path}')">
+        </td>`;
+
+    });
+
+    row += "</tr>";
+
+    table.innerHTML += row;
+
+});
+
+
+/* -----------------------------
+   modal logic
+------------------------------ */
+
+const modal = document.getElementById("modal");
+const modalImg = document.getElementById("modalImg");
+
+function openModal(src){
+
+    modalImg.src = src;
+    modal.style.display = "flex";
+
+}
+
+function closeModal(){
+
+    modal.style.display = "none";
+
+}
+
+
+/* close when clicking background */
+
+modal.addEventListener("click", closeModal);
+
+
+/* close with ESC */
+
+document.addEventListener("keydown", function(e){
+
+    if(e.key === "Escape"){
+        closeModal();
+    }
+
+});
+
+</script>
+
+</body>
+</html>
